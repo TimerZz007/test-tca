@@ -1,0 +1,63 @@
+{
+  "task_name": "DemoTool",
+  "module_name": "codelint",
+  "task_params": {
+    "scan_languages": [
+      "python"
+    ],
+    "rules": [
+      "DemoRule"
+    ],
+    "rule_list": [
+      {
+        "name": "DemoRule",
+        "gid": 10800,
+        "pkg_id": 209,
+        "pkg_name": "demo rule package",
+        "pkg_type": 1,
+        "tool_name": "DemoTool",
+        "category": 1,
+        "display_name": "DemoRule",
+        "rule_title": "find a code problem",
+        "severity": 2,
+        "custom": true,
+        "params": null
+      }
+    ],
+    "pre_cmd": null,
+    "build_cmd": null,
+    "envs": " \nXCODE_VERSION=11.0\npython_version=3",
+    "scm_last_revision": "74825dfb813e9c59db912c677677f94f5ba8e22f",
+    "incr_scan": true,
+    "checktool": {
+      "scm_url": "http://xxx/xxx/xxx.git",
+      "run_cmd": "python src/main.py",
+      "envs": "python_version=3",
+      "display_name": "DemoTool",
+      "virtual_name": "86",
+      "show_display_name": false,
+      "build_flag": false
+    },
+    "path_filters": {
+      "inclusion": [
+        "src/*"
+      ],
+      "exclusion": [
+        "src/test/*_test.py"
+      ],
+      "re_inclusion": [
+        "lib/.*"
+      ],
+      "re_exclusion": [
+        "lib/.*_test.py"
+      ]
+    },
+    "scm_url": "git@git.xxx.com:xxx/xxxx",
+    "scm_type": "git",
+    "project_id": 1309,
+    "source_dir": "/xxx/xxx",
+    "scm_revision": "fc531eb01462bca6f7d371ab036001eb22aaf9ed",
+    "task_id": 50
+  },
+  "task_dir": "/xxx/data/taskdirs/local_task_50"
+}
