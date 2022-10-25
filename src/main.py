@@ -223,16 +223,14 @@ class DemoTool(object):
         # todo: 此处需要自行实现工具逻辑,输出结果,存放到result列表中
         # 调用gosec
         taget_path = source_dir + '/...'
-        res_file_path = 'tmp_results.json'
-        if os.path.exists(res_file_path):     # 删除之前的扫描结果，避免权限问题
-            os.remove(res_file_path)
+        res_file_path = source_dir + '/tmp_results.json'
 
         gosec_cmd = ['gosec', '-fmt=json', '-out=' + res_file_path, taget_path]
         s_p = subprocess.Popen(gosec_cmd)
         s_p.wait()
 
         # 处理结果
-        result = DemoTool.data_handle('tmp_results.json', 'xxxxxx')
+        result = DemoTool.data_handle(res_file_path, 'xxxxxx')
         # todo: 这里是demo结果，仅供展示，需要替换为实际结果
         # demo_path = os.path.join(source_dir, "run.py")
         # result = [
@@ -260,9 +258,8 @@ class DemoTool(object):
         # ]
 
         # 输出结果到指定的json文件
-        if os.path.exists("result.json"):
-            os.remove("result.json")
-        with open("result.json", "w") as fp:
+        result_json_file_path = source_dir + '/result.json'
+        with open(result_json_file_path, "w") as fp:
             json.dump(result, fp, indent=2)
 
     def __check_usable(self):
