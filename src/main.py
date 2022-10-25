@@ -138,13 +138,14 @@ class DemoTool(object):
     @staticmethod
     def data_handle(tmp_res_file, enable_rules):
         res_list = []          # 存放处理结果
+
         with open(tmp_res_file, 'r') as rf:
             tmp_json = json.load(rf)
             tmp_json_list = tmp_json['Issues']
             for issue in tmp_json_list:
                 # 提取字段结果
                 _severity = issue['severity']
-                ref_url = issue['cwe']['url']      # 参考url
+                # ref_url = issue['cwe']['url']      # 参考url,不一定有这个
                 _details = issue['details']
                 _file = issue['file']
                 _line = issue['line']
@@ -224,6 +225,7 @@ class DemoTool(object):
         # 调用gosec
         taget_path = source_dir + '/...'
         res_file_path = source_dir + '/tmp_results.json'
+        print(res_file_path)
 
         gosec_cmd = ['gosec', '-fmt=json', '-out=' + res_file_path, taget_path]
         s_p = subprocess.Popen(gosec_cmd)
