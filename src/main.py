@@ -135,12 +135,43 @@ class DemoTool(object):
             "re_exclusion": regex_exlucde_paths
         }
 
+    @staticmethod
+    def data_handle(tmp_res_file, enable_rules):
+        res_list = []          # 存放处理结果
+        with open(tmp_res_file, 'r') as rf:
+            tmp_json = json.load(rf)
+            tmp_json_list = tmp_json['Issues']
+            for issue in tmp_json_list:
+                # 提取字段结果
+                _severity = issue['severity']
+                ref_url = issue['cwe']['url']      # 参考url
+                _details = issue['details']
+                _file = issue['file']
+                _line = issue['line']
+                _column = issue['column']
+
+                _rule_id = issue['rule_id']
+                # todo 判断rule id是不是在规则库里！
+
+                # 反馈问题
+                sub_issue_dict = {
+                        "path": _file,
+                        'line': _line,
+                        'column': _column,
+                        'msg': _details,
+                        'rule': _rule_id,
+                        "refs": []
+                    }
+                res_list.append(sub_issue_dict)
+
+        return res_list
+
     def __scan(self):
         """
         扫码代码
         """
         # 代码目录直接从环境变量获取
-        source_dir = os.environ.get("SOURCE_DIR", None)
+        source_dir = os.environ.get("SOURCE_DIR", None)    # SOURCE_DIR 要扫描的代码目录
         print("[debug] source_dir: %s" % source_dir)
 
         # 其他参数从task_request.json文件获取
@@ -160,7 +191,7 @@ class DemoTool(object):
         print("[debug] path: %s" % os.environ.get("PATH"))
         # 查看python版本
         print("[debug] 查看python version")
-        sp = subprocess.Popen(["python", "--version"])
+        sp = subprocess.Popen(["python3", "--version"])
         sp.wait()
         print("- * - * - * - * - * - * - * - * - * - * - * - * -* -* -* -* -* -* -")
         # 获取过滤路径
@@ -172,7 +203,7 @@ class DemoTool(object):
         # 此处获取到的文件列表,已经根据项目配置的过滤路径过滤
         # 增量扫描时，从SCAN_FILES获取到的文件列表与从DIFF_FILES获取到的相同
         # ------------------------------------------------------------------ #
-        scan_files_env = os.getenv("SCAN_FILES")
+        scan_files_env = os.getenv("SCAN_FILES")     # 拿不到就为空
         if scan_files_env and os.path.exists(scan_files_env):
             with open(scan_files_env, "r") as rf:
                 scan_files = json.load(rf)
@@ -190,33 +221,47 @@ class DemoTool(object):
                 print("[debug] get diff files: %s" % diff_files)
 
         # todo: 此处需要自行实现工具逻辑,输出结果,存放到result列表中
+        # 调用gosec
+        taget_path = source_dir + '/...'
+        res_file_path = 'tmp_results.json'
+        if os.path.exists(res_file_path):     # 删除之前的扫描结果，避免权限问题
+            os.remove(res_file_path)
+
+        gosec_cmd = ['gosec', '-fmt=json', '-out=' + res_file_path, taget_path]
+        s_p = subprocess.Popen(gosec_cmd)
+        s_p.wait()
+
+        # 处理结果
+        result = DemoTool.data_handle('tmp_results.json', 'xxxxxx')
         # todo: 这里是demo结果，仅供展示，需要替换为实际结果
-        demo_path = os.path.join(source_dir, "run.py")
-        result = [
-            {
-                "path": demo_path,
-                'line': 5,
-                'column': 3,
-                'msg': "This is a testcase.",
-                'rule': "DemoRule",
-                "refs": [
-                    {
-                        "line": 1,
-                        "msg": "first ref msg",
-                        "tag": "first_tag",
-                        "path": demo_path
-                    },
-                    {
-                        "line": 3,
-                        "msg": "second ref msg",
-                        "tag": "second_tag",
-                        "path": demo_path
-                    }
-                ]
-            }
-        ]
+        # demo_path = os.path.join(source_dir, "run.py")
+        # result = [
+        #     {
+        #         "path": demo_path,
+        #         'line': 5,
+        #         'column': 3,
+        #         'msg': "This is a testcase.",
+        #         'rule': "DemoRule",
+        #         "refs": [
+        #             {
+        #                 "line": 1,
+        #                 "msg": "first ref msg",
+        #                 "tag": "first_tag",
+        #                 "path": demo_path
+        #             },
+        #             {
+        #                 "line": 3,
+        #                 "msg": "second ref msg",
+        #                 "tag": "second_tag",
+        #                 "path": demo_path
+        #             }
+        #         ]
+        #     }
+        # ]
 
         # 输出结果到指定的json文件
+        if os.path.exists("result.json"):
+            os.remove("result.json")
         with open("result.json", "w") as fp:
             json.dump(result, fp, indent=2)
 
@@ -236,9 +281,8 @@ class DemoTool(object):
     def run(self):
         args = self.__parse_args()
         if args.command == "check":
-
             print(">> check tool usable ...")
-            is_usable = self.__check_usable()
+            is_usable = self.__check_usable()    # 检测环境
             result_path = "check_result.json"
             if os.path.exists(result_path):
                 os.remove(result_path)
