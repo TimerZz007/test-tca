@@ -260,7 +260,9 @@ class DemoTool(object):
         # ]
 
         # 输出结果到指定的json文件
-        result_json_file_path = source_dir + '/result.json'
+        result_json_file_path = 'result.json'
+        if os.path.exists(result_json_file_path):
+            os.remove(result_json_file_path)
         with open(result_json_file_path, "w") as fp:
             json.dump(result, fp, indent=2)
 
